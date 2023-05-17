@@ -28,3 +28,9 @@ docker-compose up -d --build
 ```
 docker-compose exec web python manage.py migrate
 ```
+
+Загрузите ингредиенты:
+
+```
+docker-compose exec web python manage.py load_ingredients
+```

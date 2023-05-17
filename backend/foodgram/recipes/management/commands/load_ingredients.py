@@ -8,8 +8,14 @@ from recipes.models import Ingredient
 class Command(BaseCommand):
     help = "Импорт данных из ingredients.csv"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--path', type=str, help='Путь к файлу')
+
     def handle(self, *args, **options):
-        file_path = 'ingredients.csv'
+        if options['path'] is None:
+            file_path = 'ingredients.csv'
+        else:
+            file_path = options['path'] + 'ingredients.csv'
         with open(file_path, 'r') as csv_file:
             reader = csv.reader(csv_file)
             for row in reader:
@@ -19,6 +25,7 @@ class Command(BaseCommand):
                         measurement_unit=row[1],
                     )
                     if not created:
-                        print(f'Ингредиент {obj} уже существует в базе данных')
+                        self.stdout.write(
+                            f'Ингредиент {obj} уже существует в базе данных')
                 except Exception as error:
-                    print(f'Ошибка в строке {row}: {error}')
+                    self.stdout.write(f'Ошибка в строке {row}: {error}')

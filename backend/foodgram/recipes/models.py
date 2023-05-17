@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
+from colorfield.fields import ColorField
 
 User = get_user_model()
 
 
 class Tag(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    color = models.CharField(max_length=7, unique=True)
+    color = ColorField(format='hex', default='#FF0000', unique=True)
     slug = models.SlugField(max_length=200, unique=True)
 
     class Meta:
@@ -18,7 +20,7 @@ class Tag(models.Model):
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=200, db_index=True)
-    measurement_unit = models.CharField(max_length=200)
+    measurement_unit = models.CharField(max_length=15)
 
     class Meta:
         ordering = ('id',)
@@ -41,7 +43,13 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag, verbose_name='tags'
     )
-    cooking_time = models.PositiveSmallIntegerField()
+    cooking_time = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1,
+                              message='Минимальное значение 1')
+        ]
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -64,7 +72,13 @@ class IngredientsRecipe(models.Model):
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE
     )
-    amount = models.PositiveSmallIntegerField()
+    amount = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1,
+                              message='Минимальное значение 1')
+        ]
+    )
 
     class Meta:
         constraints = [

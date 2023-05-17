@@ -64,6 +64,7 @@ class SubscriptionSerializer(CustomUserSerializer):
             author_recipes = author_recipes[:int(recipes_limit)]
         if author_recipes:
             return LightRecipeSerializer(author_recipes, many=True).data
+        return []
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
@@ -158,11 +159,19 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_tags(self, value):
         if not value:
             raise serializers.ValidationError('Нужно добавить тег')
+        tags_set = set(value)
+        if len(value) != len(tags_set):
+            raise serializers.ValidationError('Теги должны быть уникальными')
         return value
 
     def validate_ingredients(self, value):
         if not value:
             raise serializers.ValidationError('Нужно добавить ингредиент')
+        ingredients = [item['id'] for item in value]
+        for ingredient in ingredients:
+            if ingredients.count(ingredient) > 1:
+                raise serializers.ValidationError(
+                    'Ингредиенты должны быть уникальными')
         return value
 
     def create(self, validated_data):
