@@ -20,8 +20,6 @@ services:
     image: t1m4k/foodgram_frontend:v0.1
     volumes:
       - ../frontend/:/app/result_build/
-    env_file:
-      - .env
     depends_on:
       - web
   nginx:
